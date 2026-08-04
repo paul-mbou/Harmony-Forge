@@ -112,6 +112,8 @@ export interface LyricEditorProps {
   className?: string;
   /** Styling variant (chorus uses accent border). */
   variant?: "default" | "chorus";
+  /** Extra classes on the editable TipTap surface (e.g. taller min-height). */
+  contentClassName?: string;
   /**
    * Change when the logical field changes so the editor remounts with the
    * right document (e.g. `${songId}-${lang}-verse-0`).
@@ -129,6 +131,7 @@ export function LyricEditor({
   disabled = false,
   className,
   variant = "default",
+  contentClassName,
   editorKey,
 }: LyricEditorProps) {
   const editor = useEditor(
@@ -157,7 +160,8 @@ export function LyricEditor({
           class: cn(
             "tiptap max-w-none min-h-[120px] px-3 py-2 text-sm leading-relaxed text-foreground outline-none",
             "[&_p]:mb-2 [&_p:last-child]:mb-0",
-            "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background"
+            "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+            contentClassName
           ),
         },
       },

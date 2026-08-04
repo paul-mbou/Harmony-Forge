@@ -56,6 +56,10 @@
             "chorus": {
               "type": "string"
             },
+            "history": {
+              "type": "string",
+              "description": "Rich-text (HTML) background story of the hymn for this language."
+            },
             "partitionUrl": {
               "type": "string",
               "description": "URL or Data URI for sheet music (this language version)."

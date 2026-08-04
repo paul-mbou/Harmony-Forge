@@ -7,6 +7,8 @@ export interface SongContent {
   key?: string;
   verses: string[];
   chorus?: string;
+  /** Rich-text (HTML) story / background of the hymn for this language. */
+  history?: string;
   /** URL or data URI for sheet music, specific to this language version. */
   partitionUrl?: string;
   /** URL or data URI for audio, specific to this language version. */

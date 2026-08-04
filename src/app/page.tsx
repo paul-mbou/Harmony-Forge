@@ -212,6 +212,7 @@ export default function HarmonyForge() {
       "EN_Number", "EN_Title", "EN_Author", "EN_Year", "EN_Key",
       "FR_Number", "FR_Title", "FR_Author", "FR_Year", "FR_Key",
       "EN_PartitionURL", "EN_AudioURL", "FR_PartitionURL", "FR_AudioURL",
+      "EN_History", "FR_History",
     ];
 
     const rows = songs.map(s => [
@@ -230,6 +231,8 @@ export default function HarmonyForge() {
       s.content?.en?.audioUrl || "",
       s.content?.fr?.partitionUrl || "",
       s.content?.fr?.audioUrl || "",
+      s.content?.en?.history || "",
+      s.content?.fr?.history || "",
     ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(","));
 
     const csvContent = [headers.join(","), ...rows].join("\n");
@@ -285,8 +288,10 @@ export default function HarmonyForge() {
       try {
         const text = event.target?.result as string;
         const lines = text.split(/\r?\n/).filter((l) => l.trim());
+        const header = lines[0] || "";
         const isNewFormat =
-          lines[0]?.includes("EN_PartitionURL") && lines[0]?.includes("FR_PartitionURL");
+          header.includes("EN_PartitionURL") && header.includes("FR_PartitionURL");
+        const hasHistoryCols = header.includes("EN_History") && header.includes("FR_History");
         let count = 0;
         for (let i = 1; i < lines.length; i++) {
           const parts = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -309,6 +314,8 @@ export default function HarmonyForge() {
               enA,
               frP,
               frA,
+              enHistory = "",
+              frHistory = "",
             ] = parts.map(clean);
             const songId = id || Math.random().toString(36).substring(2, 11);
             const song: Song = {
@@ -322,6 +329,7 @@ export default function HarmonyForge() {
                   key: enKey,
                   verses: [],
                   chorus: "",
+                  history: hasHistoryCols ? enHistory : "",
                   partitionUrl: enP,
                   audioUrl: enA,
                 },
@@ -333,6 +341,7 @@ export default function HarmonyForge() {
                   key: frKey,
                   verses: [],
                   chorus: "",
+                  history: hasHistoryCols ? frHistory : "",
                   partitionUrl: frP,
                   audioUrl: frA,
                 },
@@ -359,6 +368,7 @@ export default function HarmonyForge() {
                   key: enKey,
                   verses: [],
                   chorus: "",
+                  history: "",
                   partitionUrl: pUrl,
                   audioUrl: aUrl,
                 },
@@ -370,6 +380,7 @@ export default function HarmonyForge() {
                   key: frKey,
                   verses: [],
                   chorus: "",
+                  history: "",
                   partitionUrl: pUrl,
                   audioUrl: aUrl,
                 },

@@ -26,6 +26,7 @@ import { isImageUrl, isMp3Url, isPdfUrl } from "@/lib/media";
 import { Song, getDisplayTitle } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
+  BookOpen,
   Calendar,
   ChevronLeft,
   Edit,
@@ -69,7 +70,9 @@ export function SongView({
     uiLanguage || (song.content?.en?.title ? "en" : "fr")
   );
 
-  const [viewTab, setViewTab] = React.useState<"lyrics" | "partition" | "audio">("lyrics");
+  const [viewTab, setViewTab] = React.useState<
+    "lyrics" | "partition" | "audio" | "history"
+  >("lyrics");
   const [isRemovingMedia, setIsRemovingMedia] = React.useState(false);
 
   React.useEffect(() => {
@@ -89,16 +92,19 @@ export function SongView({
   const hasEn = !!(
     song.content?.en?.title?.trim() ||
     lyricHasText(song.content?.en?.chorus) ||
+    lyricHasText(song.content?.en?.history) ||
     song.content?.en?.verses?.some((v) => lyricHasText(v))
   );
   const hasFr = !!(
     song.content?.fr?.title?.trim() ||
     lyricHasText(song.content?.fr?.chorus) ||
+    lyricHasText(song.content?.fr?.history) ||
     song.content?.fr?.verses?.some((v) => lyricHasText(v))
   );
 
   const partitionUrl = currentContent?.partitionUrl?.trim() ?? "";
   const audioUrl = currentContent?.audioUrl?.trim() ?? "";
+  const hasHistory = lyricHasText(currentContent?.history);
   const partitionIsPdf = partitionUrl ? isPdfUrl(partitionUrl) : false;
   const partitionIsImage =
     partitionUrl && !partitionIsPdf ? isImageUrl(partitionUrl) : false;
@@ -197,7 +203,7 @@ export function SongView({
           <Tabs
             value={viewTab}
             onValueChange={(v) =>
-              setViewTab(v as "lyrics" | "partition" | "audio")
+              setViewTab(v as "lyrics" | "partition" | "audio" | "history")
             }
             className="w-full h-full flex flex-col"
           >
@@ -208,7 +214,7 @@ export function SongView({
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-headline font-semibold px-1"
                 >
                   <Music className="w-4 h-4 mr-2" />
-                  Lyrics
+                  {uiLanguage === "fr" ? "Paroles" : "Lyrics"}
                 </TabsTrigger>
                 {partitionUrl && (
                   <TabsTrigger
@@ -228,6 +234,13 @@ export function SongView({
                     Audio
                   </TabsTrigger>
                 )}
+                <TabsTrigger
+                  value="history"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none font-headline font-semibold px-1"
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  {uiLanguage === "fr" ? "Histoire" : "History"}
+                </TabsTrigger>
               </TabsList>
 
               <div className="flex items-center gap-2">
@@ -481,6 +494,44 @@ export function SongView({
                     )}
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="history" className="p-8 m-0 pb-20">
+                {!hasHistory ? (
+                  <div className="flex flex-col items-center justify-center py-20 animate-in fade-in zoom-in duration-300">
+                    <Alert className="max-w-md bg-muted/20 border-primary/10">
+                      <BookOpen className="h-4 w-4 text-primary" />
+                      <AlertTitle className="font-headline font-semibold text-primary">
+                        {uiLanguage === "fr"
+                          ? "Aucune histoire"
+                          : "No history yet"}
+                      </AlertTitle>
+                      <AlertDescription className="text-muted-foreground">
+                        {uiLanguage === "fr"
+                          ? lyricsLang === "en"
+                            ? "Ce chant n’a pas encore d’histoire en anglais. Modifiez le chant (onglet English) pour l’ajouter."
+                            : "Ce chant n’a pas encore d’histoire en français. Modifiez le chant (onglet French) pour l’ajouter."
+                          : lyricsLang === "en"
+                            ? "This hymn does not have an English history yet. Edit the song (English tab) to add one."
+                            : "This hymn does not have a French history yet. Edit the song (French tab) to add one."}
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                ) : (
+                  <div className="max-w-2xl mx-auto space-y-4 animate-in fade-in duration-300">
+                    <div className="flex items-center gap-2 text-primary/70">
+                      <BookOpen className="w-4 h-4" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">
+                        {lyricsLang === "fr" ? "Histoire" : "History"} (
+                        {lyricsLang.toUpperCase()})
+                      </span>
+                    </div>
+                    <LyricDisplay
+                      text={currentContent?.history}
+                      className="text-base text-foreground leading-relaxed"
+                    />
+                  </div>
+                )}
               </TabsContent>
             </ScrollArea>
           </Tabs>

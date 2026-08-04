@@ -22,6 +22,7 @@ const emptyBlock = (): SongContent => ({
   key: "",
   verses: [""],
   chorus: "",
+  history: "",
   partitionUrl: "",
   audioUrl: "",
 });

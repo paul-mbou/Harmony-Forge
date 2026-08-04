@@ -24,7 +24,7 @@ import { normalizeSong } from "@/lib/song-normalize";
 import { deleteFirebaseStorageObjectByUrl } from "@/lib/storage-helpers";
 import { NewSong, Song, SongContent, contentHasAudio, contentHasPartition } from "@/lib/types";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { FileImage, Key, Languages, Loader2, Music, Plus, Save, Trash2, Volume2, X } from "lucide-react";
+import { BookOpen, FileImage, Key, Languages, Loader2, Music, Plus, Save, Trash2, Volume2, X } from "lucide-react";
 import * as React from "react";
 
 const PARTITION_ACCEPT =
@@ -116,6 +116,7 @@ const emptyContent = (): SongContent => ({
   key: "",
   verses: [""],
   chorus: "",
+  history: "",
   partitionUrl: "",
   audioUrl: "",
 });
@@ -633,6 +634,32 @@ export function SongForm({
               </Tabs>
             )}
           </div>
+        </div>
+
+        <div className="space-y-2 p-4 bg-muted/20 rounded-xl border border-primary/10">
+          <div className="flex items-center gap-2 mb-1">
+            <BookOpen className="w-4 h-4 text-primary" />
+            <Label className="text-sm font-bold text-primary uppercase tracking-wider">
+              {lang === "fr" ? "Histoire" : "History"} ({lang.toUpperCase()})
+            </Label>
+          </div>
+          <p className="text-[10px] text-muted-foreground mb-2">
+            {lang === "fr"
+              ? "Texte riche pour l’histoire de cette version française du chant."
+              : "Rich text for the background story of this English version of the hymn."}
+          </p>
+          <LyricEditor
+            editorKey={`${songKey}-${lang}-history`}
+            value={content.history || ""}
+            onChange={(html) => handleContentChange(lang, "history", html)}
+            placeholder={
+              lang === "fr"
+                ? "Raconter l’histoire du chant…"
+                : "Enter the story of this hymn…"
+            }
+            disabled={isUploading}
+            contentClassName="min-h-[200px]"
+          />
         </div>
 
         <div className="space-y-2 p-4 bg-accent/5 rounded-xl border border-accent/10">
