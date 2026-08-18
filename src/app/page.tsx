@@ -184,7 +184,7 @@ export default function HarmonyForge() {
 
       setDocumentNonBlocking(
         docRef,
-        { ...newSongWithId, partitionUrl: deleteField(), audioUrl: deleteField() },
+        newSongWithId,
         {}
       );
       toast({ title: "Song created", description: "New song added to the collection." });
@@ -265,7 +265,7 @@ export default function HarmonyForge() {
           const normalized = normalizeSong({ ...(raw as object), id } as SongWithLegacyFields);
           setDocumentNonBlocking(
             doc(db, "songs", id),
-            { ...normalized, partitionUrl: deleteField(), audioUrl: deleteField() },
+            normalized,
             {}
           );
         });
@@ -349,7 +349,7 @@ export default function HarmonyForge() {
             };
             setDocumentNonBlocking(
               doc(db, "songs", songId),
-              { ...song, partitionUrl: deleteField(), audioUrl: deleteField() },
+              song,
               {}
             );
             count++;
@@ -388,7 +388,7 @@ export default function HarmonyForge() {
             };
             setDocumentNonBlocking(
               doc(db, "songs", songId),
-              { ...song, partitionUrl: deleteField(), audioUrl: deleteField() },
+              song,
               {}
             );
             count++;
