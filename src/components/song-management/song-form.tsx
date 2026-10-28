@@ -170,7 +170,7 @@ export function SongForm({
       toast({
         variant: "destructive",
         title: "Authentication Required",
-        description: "Please wait for anonymous sign-in to complete before uploading files.",
+        description: "Sign in with an authorized Google account before uploading files.",
       });
       return;
     }

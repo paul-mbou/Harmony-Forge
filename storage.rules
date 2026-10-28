@@ -1,10 +1,22 @@
 rules_version = '2';
-// Aligné sur la console Firebase actuelle : accès ouvert (tests / debug).
-// Avant production, restreindre : allow write: if request.auth != null; (read public si besoin).
 service firebase.storage {
   match /b/{bucket}/o {
+
+    // Keep in sync with firestore.rules and src/lib/admins.ts.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email.lower() in [
+          'appsindustry068@gmail.com',
+          'thipavi21@gmail.com'
+        ];
+    }
+
+    // Partitions / audios lus par les apps ; seuls les éditeurs téléversent ou suppriment.
     match /{allPaths=**} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

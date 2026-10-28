@@ -4,8 +4,22 @@ import {
   signInAnonymously,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
   // Assume getAuth and app are initialized elsewhere
 } from 'firebase/auth';
+
+/** Google sign-in popup — editors must be on the admin allowlist (see src/lib/admins.ts). */
+export function signInWithGoogle(authInstance: Auth) {
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  return signInWithPopup(authInstance, provider);
+}
+
+export function signOutUser(authInstance: Auth) {
+  return signOut(authInstance);
+}
 
 /** Initiate anonymous sign-in (non-blocking). */
 export function initiateAnonymousSignIn(authInstance: Auth): void {

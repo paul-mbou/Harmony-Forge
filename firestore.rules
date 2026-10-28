@@ -2,20 +2,26 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isSignedIn() {
-      return request.auth != null && request.auth.uid != null;
+    // Keep in sync with src/lib/admins.ts, storage.rules and
+    // fgm_lyrics_app/functions/src/adminAuth.js.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email.lower() in [
+          'appsindustry068@gmail.com',
+          'thipavi21@gmail.com'
+        ];
     }
 
     /**
-     * Chants partagés : lecture ouverte (catalogue consultable sans compte explicite),
-     * création / mise à jour / suppression réservées aux utilisateurs authentifiés
-     * (y compris anonymes), comme dans votre modèle « community ».
+     * Catalogue public en lecture (apps FGM Hymnals, site).
+     * Écriture réservée aux éditeurs HarmonyForge (Google + liste blanche).
      */
     match /songs/{songId} {
       allow read: if true;
-      allow create: if isSignedIn() && request.resource.data.id == songId;
-      allow update: if isSignedIn();
-      allow delete: if isSignedIn();
+      allow create: if isAdmin() && request.resource.data.id == songId;
+      allow update, delete: if isAdmin();
     }
   }
 }

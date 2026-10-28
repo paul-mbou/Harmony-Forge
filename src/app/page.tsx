@@ -1,6 +1,7 @@
 
 "use client";
 
+import { AdminSignIn } from "@/components/admin-sign-in";
 import { DeleteConfirm } from "@/components/song-management/delete-confirm";
 import { SongForm } from "@/components/song-management/song-form";
 import { SongList } from "@/components/song-management/song-list";
@@ -15,8 +16,8 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import {
   deleteDocumentNonBlocking,
-  initiateAnonymousSignIn,
   setDocumentNonBlocking,
+  signOutUser,
   updateDocumentNonBlocking,
   useAuth,
   useCollection,
@@ -30,7 +31,8 @@ import { normalizeSong, songWithLanguageMedia, type SongWithLegacyFields } from 
 import { deleteFirebaseStorageObjectByUrl } from "@/lib/storage-helpers";
 import { NewSong, Song, getDisplayTitle } from "@/lib/types";
 import { collection, deleteField, doc } from "firebase/firestore";
-import { Download, Loader2, Music2, Plus, Upload } from "lucide-react";
+import { isAdminUser } from "@/lib/admins";
+import { Download, Loader2, LogOut, Music2, Plus, Upload } from "lucide-react";
 import * as React from "react";
 
 export default function HarmonyForge() {
@@ -50,18 +52,12 @@ export default function HarmonyForge() {
   const jsonInputRef = React.useRef<HTMLInputElement>(null);
   const csvInputRef = React.useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
-    if (!isUserLoading && !user && auth) {
-      initiateAnonymousSignIn(auth);
-    }
-  }, [user, isUserLoading, auth]);
+  const isAdmin = isAdminUser(user);
 
-  // Delay the query until both the database and the authenticated user are ready
-  // to prevent "Missing or insufficient permissions" errors on the initial load.
   const songsQuery = useMemoFirebase(() => {
-    if (!db || !user?.uid) return null;
+    if (!db || !isAdmin) return null;
     return collection(db, "songs");
-  }, [db, user?.uid]);
+  }, [db, isAdmin]);
 
   const { data: rawSongs, isLoading: isSongsLoading } = useCollection<Song>(songsQuery);
 
@@ -405,6 +401,15 @@ export default function HarmonyForge() {
 
   const isLoading = isUserLoading || isSongsLoading;
 
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+  if (!isAdmin) return <AdminSignIn />;
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-accent/30">
       <input type="file" accept=".json" ref={jsonInputRef} onChange={handleImportJSON} className="hidden" />
@@ -468,6 +473,10 @@ export default function HarmonyForge() {
             <Button onClick={handleCreateNew} size="sm" disabled={isLoading} className="bg-accent hover:bg-accent/90 text-accent-foreground">
               <Plus className="w-4 h-4 mr-2" />
               New Song
+            </Button>
+
+            <Button variant="ghost" size="sm" onClick={() => signOutUser(auth)} title={user?.email ?? undefined}>
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
