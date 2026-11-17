@@ -1,6 +1,6 @@
 # HarmonyForge: Bilingual Digital Hymnal & Song Manager
 
-![HarmonyForge](docs/portfolio/cover.png)
+![Connexion en ligne](docs/portfolio/sign-in.png)
 
 
 HarmonyForge is a modern, contemplative digital space designed for organizing and managing a collection of musical hymns in both English and French. It prioritizes clarity, performance, and accessibility for worship leaders, musicians, and community members.
